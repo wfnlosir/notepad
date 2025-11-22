@@ -1,530 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Notepad</title>
-  <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #111111;
-      --muted: #666;
-      --accent: #0b57d0;
-      --border: #ddd;
-      --menu-bg: #f7f7f7;
-      --menu-hover: #e9eef6;
-      --status-bg: #f8f8f8;
-      --font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    /* Simple title bar / menu */
-    header {
-      background: var(--menu-bg);
-      border-bottom: 1px solid var(--border);
-    }
-    .menubar {
-      display: flex;
-      gap: 4px;
-      padding: 6px 8px;
-      overflow-x: auto;
-    }
-    .menu {
-      position: relative;
-    }
-    .menu > button {
-      background: transparent;
-      border: 0;
-      padding: 6px 8px;
-      border-radius: 4px;
-      font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      color: var(--fg);
-      cursor: pointer;
-    }
-    .menu > button:hover,
-    .menu > button:focus-visible {
-      background: var(--menu-hover);
-      outline: none;
-    }
-    .dropdown {
-      position: absolute;
-      top: calc(100% + 2px);
-      left: 0;
-      min-width: 220px;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      padding: 6px;
-      display: none;
-      z-index: 10;
-    }
-    .dropdown.open { display: block; }
-    .item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 8px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      user-select: none;
-      font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-    }
-    .item:hover { background: var(--menu-hover); }
-    .item[aria-disabled="true"] {
-      color: var(--muted);
-      cursor: not-allowed;
-    }
-    .sep {
-      height: 1px;
-      background: var(--border);
-      margin: 6px;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      min-height: 0;
-    }
-    textarea {
-      width: 100%;
-      flex: 1;
-      border: none;
-      resize: none;
-      padding: 12px;
-      font: 14px/1.6 var(--font);
-      outline: none;
-      background: var(--bg);
-      color: var(--fg);
-      tab-size: 4;
-      caret-color: var(--accent);
-      white-space: pre-wrap; /* default word wrap ON */
-      overflow-wrap: anywhere;
-    }
-    textarea.nowrap {
-      white-space: pre;     /* word wrap OFF */
-      overflow-wrap: normal;
-      overflow: auto;
-    }
-    footer {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 6px 10px;
-      border-top: 1px solid var(--border);
-      background: var(--status-bg);
-      font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      color: #333;
-    }
-    .status-right {
-      margin-left: auto;
-      display: inline-flex;
-      gap: 12px;
-      align-items: center;
-      white-space: nowrap;
-    }
-    /* Mobile tweaks */
-    @media (max-width: 640px) {
-      .dropdown { min-width: min(90vw, 320px); }
-      textarea { font-size: 15px; }
-      .kbd { display: none; }
-    }
-    .hidden-input {
-      display: none;
-    }
-    .kbd {
-      font-family: var(--font);
-      font-size: 12px;
-      color: #666;
-      background: #f1f1f1;
-      padding: 1px 6px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
-    .dot {
-      color: var(--accent);
-      margin-left: 4px;
-      visibility: hidden;
-    }
-    .dirty .dot { visibility: visible; }
-    .link {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .link:hover { text-decoration: underline; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad + Tabs</title>
+    <style>
+        :root {
+            --bg-color: #f0f0f0;
+            --menu-bg: #e0e0e0;
+            --border-color: #999;
+            --highlight: #0078d7;
+            --text-color: #000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-color);
+        }
+
+        /* Menu Bar */
+        #menubar {
+            display: flex;
+            background-color: #fff;
+            border-bottom: 1px solid #ccc;
+            padding: 2px 0;
+            user-select: none;
+        }
+
+        .menu-item {
+            position: relative;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            background-color: var(--highlight);
+            color: white;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #fff;
+            border: 1px solid #999;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            min-width: 150px;
+            z-index: 100;
+            color: black;
+        }
+
+        .menu-item:hover .dropdown {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 5px 15px;
+            cursor: pointer;
+            display: block;
+            text-decoration: none;
+            color: black;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--highlight);
+            color: white;
+        }
+
+        /* Tab Bar */
+        #tab-bar {
+            display: flex;
+            background-color: #ccc;
+            padding-top: 3px;
+            padding-left: 3px;
+            border-bottom: 1px solid #999;
+            overflow-x: auto;
+        }
+
+        .tab {
+            background-color: #ddd;
+            border: 1px solid #999;
+            border-bottom: none;
+            padding: 5px 10px;
+            margin-right: 2px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            max-width: 150px;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+            position: relative;
+            top: 1px; /* Cover bottom border */
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            font-size: 12px;
+            color: #666;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-close:hover {
+            background-color: #c00;
+            color: white;
+        }
+
+        #add-tab-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        #add-tab-btn:hover {
+            color: #000;
+        }
+
+        /* Editor Area */
+        #editor-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace; /* Default font */
+            font-size: 14px; /* Default size */
+            box-sizing: border-box;
+            outline: none;
+            white-space: pre-wrap;
+        }
+
+        /* Settings Modal */
+        #settings-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #settings-box {
+            background: white;
+            padding: 20px;
+            border: 1px solid #999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 300px;
+        }
+
+        #settings-box h3 { margin-top: 0; }
+        
+        .setting-row { margin-bottom: 10px; }
+        .setting-row label { display: block; margin-bottom: 5px; font-size: 14px; }
+        .setting-row select, .setting-row input { width: 100%; padding: 5px; }
+        
+        .btn-group { text-align: right; margin-top: 15px; }
+        button { padding: 5px 15px; cursor: pointer; }
+
+    </style>
 </head>
 <body>
-  <header>
-    <div class="menubar">
-      <div class="menu" data-menu="file">
-        <button type="button" aria-haspopup="true" aria-expanded="false">File</button>
-        <div class="dropdown" role="menu">
-          <div class="item" data-action="new"><span>New</span><span class="kbd">Ctrl/Cmd+N</span></div>
-          <div class="item" data-action="open"><span>Open…</span><span class="kbd">Ctrl/Cmd+O</span></div>
-          <div class="item fs-supported" data-action="save"><span>Save</span><span class="kbd">Ctrl/Cmd+S</span></div>
-          <div class="item" data-action="saveas"><span>Save As…</span></div>
-          <div class="sep"></div>
-          <div class="item" data-action="download"><span>Download .txt</span></div>
+
+    <div id="menubar">
+        <div class="menu-item">File
+            <div class="dropdown">
+                <div class="dropdown-item" onclick="downloadCurrentTab()">Save (Download .txt)</div>
+                <div class="dropdown-item" onclick="resetAll()">Reset All Data</div>
+            </div>
         </div>
-      </div>
-      <div class="menu" data-menu="edit">
-        <button type="button" aria-haspopup="true" aria-expanded="false">Edit</button>
-        <div class="dropdown" role="menu">
-          <div class="item" data-action="undo">Undo</div>
-          <div class="item" data-action="redo">Redo</div>
-          <div class="sep"></div>
-          <div class="item" data-action="cut">Cut</div>
-          <div class="item" data-action="copy">Copy</div>
-          <div class="item" data-action="paste">Paste</div>
-          <div class="sep"></div>
-          <div class="item" data-action="selectall">Select All</div>
+        <div class="menu-item">Edit
+            <div class="dropdown">
+                <div class="dropdown-item" onclick="openSettings()">Font & Size...</div>
+            </div>
         </div>
-      </div>
-      <div class="menu" data-menu="view">
-        <button type="button" aria-haspopup="true" aria-expanded="false">View</button>
-        <div class="dropdown" role="menu">
-          <div class="item" data-action="toggle-wrap"><span>Word Wrap</span><span id="wrapState" class="kbd">On</span></div>
-          <div class="item" data-action="zoom-in">Zoom In</div>
-          <div class="item" data-action="zoom-out">Zoom Out</div>
-          <div class="item" data-action="zoom-reset">Reset Zoom</div>
+        <div class="menu-item">Help
+            <div class="dropdown">
+                <div class="dropdown-item" onclick="alert('Notepad with Tabs and Auto-save.')">About</div>
+            </div>
         </div>
-      </div>
-      <div class="menu" data-menu="help">
-        <button type="button" aria-haspopup="true" aria-expanded="false">Help</button>
-        <div class="dropdown" role="menu">
-          <div class="item" data-action="about">About</div>
-        </div>
-      </div>
-      <span id="title" style="margin-left:auto;padding:6px 8px;">Notepad</span><span class="dot">•</span>
     </div>
-  </header>
 
-  <main>
-    <textarea id="editor" spellcheck="false" placeholder="Start typing..."></textarea>
-    <input id="fileInput" class="hidden-input" type="file" accept=".txt,text/plain" />
-  </main>
-
-  <footer>
-    <span id="status">Ready</span>
-    <div class="status-right">
-      <span id="cursorPos">Ln 1, Col 1</span>
-      <span>|</span>
-      <span id="length">0 chars</span>
-      <span>|</span>
-      <span id="wrapLabel">Wrap: On</span>
+    <div id="tab-bar">
+        <div id="add-tab-btn" onclick="addNewTab()">+</div>
     </div>
-  </footer>
 
-  <script>
-    // State
-    let fileHandle = null; // File System Access API handle
-    let fileName = "Untitled.txt";
-    let isDirty = false;
-    let wrapOn = true;
-    let zoom = 1;
+    <div id="editor-container">
+        <textarea id="editor" placeholder="Start typing..." oninput="saveContent()"></textarea>
+    </div>
 
-    const editor = document.getElementById('editor');
-    const titleEl = document.getElementById('title');
-    const statusEl = document.getElementById('status');
-    const cursorPosEl = document.getElementById('cursorPos');
-    const lengthEl = document.getElementById('length');
-    const wrapLabelEl = document.getElementById('wrapLabel');
-    const wrapStateEl = document.getElementById('wrapState');
-    const fileInput = document.getElementById('fileInput');
+    <div id="settings-overlay">
+        <div id="settings-box">
+            <h3>Appearance Settings</h3>
+            <div class="setting-row">
+                <label>Font Family</label>
+                <select id="font-family-select">
+                    <option value="'Courier New', monospace">Courier New</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
+                    <option value="'Consolas', monospace">Consolas</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <label>Font Size (px)</label>
+                <input type="number" id="font-size-input" value="14" min="8" max="72">
+            </div>
+            <div class="btn-group">
+                <button onclick="closeSettings()">Cancel</button>
+                <button onclick="applySettings()">Apply</button>
+            </div>
+        </div>
+    </div>
 
-    // Restore autosaved content and settings
-    (function init() {
-      try {
-        const saved = localStorage.getItem('notepad:text');
-        if (saved !== null) editor.value = saved;
-        const savedFileName = localStorage.getItem('notepad:filename');
-        if (savedFileName) fileName = savedFileName;
-        const savedWrap = localStorage.getItem('notepad:wrap');
-        if (savedWrap) wrapOn = savedWrap === 'true';
-        const savedZoom = parseFloat(localStorage.getItem('notepad:zoom') || '1');
-        if (!isNaN(savedZoom)) setZoom(savedZoom, false);
+    <script>
+        // State Management
+        let tabs = [];
+        let activeTabIndex = 0;
+        
+        // Default Config
+        let config = {
+            fontFamily: "'Courier New', monospace",
+            fontSize: "14"
+        };
 
-        applyWrap();
-        markClean(); // start as clean with restored text
-        updateTitle();
-        updateStats();
-      } catch (e) {
-        console.warn('Init error', e);
-      }
+        const editor = document.getElementById('editor');
+        const tabBar = document.getElementById('tab-bar');
+        const addTabBtn = document.getElementById('add-tab-btn');
 
-      // Detect File System Access API support
-      const fsSupported = 'showOpenFilePicker' in window && 'showSaveFilePicker' in window;
-      document.querySelectorAll('.fs-supported').forEach(el => {
-        if (!fsSupported) el.setAttribute('aria-disabled', 'true');
-      });
+        // --- Lifecycle ---
 
-      // Close menus when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.menu')) closeAllMenus();
-      });
-      document.addEventListener('keydown', handleShortcuts);
-      editor.addEventListener('input', handleInput);
-      editor.addEventListener('click', updateCursorPos);
-      editor.addEventListener('keyup', updateCursorPos);
-      fileInput.addEventListener('change', handleFileInput);
-    })();
+        window.onload = function() {
+            loadFromStorage();
+            if (tabs.length === 0) {
+                addNewTab(false); // Add default tab if none exist
+            }
+            renderTabs();
+            applyConfigStyles();
+        };
 
-    function updateTitle() {
-      titleEl.textContent = fileName.replace(/\s+/g, ' ').trim() || 'Notepad';
-      document.body.classList.toggle('dirty', isDirty);
-    }
-    function markDirty() {
-      isDirty = true;
-      updateTitle();
-    }
-    function markClean() {
-      isDirty = false;
-      updateTitle();
-    }
-    function handleInput() {
-      localStorage.setItem('notepad:text', editor.value);
-      localStorage.setItem('notepad:filename', fileName);
-      updateStats();
-      markDirty();
-    }
-    function updateStats() {
-      lengthEl.textContent = `${editor.value.length} chars`;
-      updateCursorPos();
-    }
-    function updateCursorPos() {
-      const pos = editor.selectionStart || 0;
-      const before = editor.value.slice(0, pos);
-      const line = (before.match(/\n/g) || []).length + 1;
-      const col = pos - before.lastIndexOf('\n');
-      cursorPosEl.textContent = `Ln ${line}, Col ${col}`;
-    }
+        // --- Core Functions ---
 
-    // Menus
-    document.querySelectorAll('.menu > button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dd = btn.nextElementSibling;
-        const expanded = dd.classList.toggle('open');
-        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        document.querySelectorAll('.dropdown').forEach(other => {
-          if (other !== dd) other.classList.remove('open');
-        });
-      });
-    });
-    document.querySelectorAll('.dropdown .item').forEach(item => {
-      item.addEventListener('click', async () => {
-        if (item.getAttribute('aria-disabled') === 'true') return;
-        const action = item.dataset.action;
-        closeAllMenus();
-        switch (action) {
-          case 'new': await doNew(); break;
-          case 'open': await doOpen(); break;
-          case 'save': await doSave(); break;
-          case 'saveas': await doSaveAs(); break;
-          case 'download': doDownload(); break;
-          case 'undo': document.execCommand('undo'); break;
-          case 'redo': document.execCommand('redo'); break;
-          case 'cut': document.execCommand('cut'); break;
-          case 'copy': document.execCommand('copy'); break;
-          case 'paste': document.execCommand('paste'); break;
-          case 'selectall': editor.select(); break;
-          case 'toggle-wrap': toggleWrap(); break;
-          case 'zoom-in': setZoom(zoom + 0.1); break;
-          case 'zoom-out': setZoom(Math.max(0.5, zoom - 0.1)); break;
-          case 'zoom-reset': setZoom(1); break;
-          case 'about': showAbout(); break;
+        function addNewTab(shouldSave = true) {
+            const newId = Date.now(); // Simple unique ID
+            tabs.push({
+                id: newId,
+                title: `Untitled ${tabs.length + 1}`,
+                content: ""
+            });
+            activeTabIndex = tabs.length - 1;
+            renderTabs();
+            if (shouldSave) saveData();
+            editor.focus();
         }
-      });
-    });
-    function closeAllMenus() {
-      document.querySelectorAll('.dropdown').forEach(dd => dd.classList.remove('open'));
-      document.querySelectorAll('.menu > button').forEach(btn => btn.setAttribute('aria-expanded', 'false'));
-    }
 
-    // Actions
-    async function doNew() {
-      if (isDirty && !confirm('Discard unsaved changes?')) return;
-      editor.value = '';
-      fileHandle = null;
-      fileName = 'Untitled.txt';
-      localStorage.setItem('notepad:text', '');
-      localStorage.setItem('notepad:filename', fileName);
-      markClean();
-      updateStats();
-      status('New file');
-      editor.focus();
-    }
+        function closeTab(e, index) {
+            e.stopPropagation(); // Prevent clicking the tab itself
+            const confirmClose = confirm("Delete this tab? This cannot be undone.");
+            if (!confirmClose) return;
 
-    async function doOpen() {
-      // Try File System Access API first
-      if ('showOpenFilePicker' in window) {
-        try {
-          const [handle] = await window.showOpenFilePicker({
-            multiple: false,
-            types: [{ description: 'Text Files', accept: { 'text/plain': ['.txt'] } }]
-          });
-          const file = await handle.getFile();
-          const text = await file.text();
-          editor.value = text;
-          fileHandle = handle;
-          fileName = file.name || 'Untitled.txt';
-          localStorage.setItem('notepad:text', editor.value);
-          localStorage.setItem('notepad:filename', fileName);
-          markClean();
-          updateStats();
-          status('Opened ' + fileName);
-          return;
-        } catch (e) {
-          if (e.name !== 'AbortError') console.warn(e);
+            tabs.splice(index, 1);
+            
+            // Adjust active index
+            if (tabs.length === 0) {
+                addNewTab(); // Always keep one tab
+            } else {
+                if (activeTabIndex >= tabs.length) {
+                    activeTabIndex = tabs.length - 1;
+                }
+                renderTabs();
+            }
+            saveData();
         }
-      }
-      // Fallback: hidden file input
-      fileInput.value = '';
-      fileInput.click();
-    }
 
-    async function handleFileInput(e) {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      const text = await file.text();
-      editor.value = text;
-      fileHandle = null; // not writable handle
-      fileName = file.name || 'Untitled.txt';
-      localStorage.setItem('notepad:text', editor.value);
-      localStorage.setItem('notepad:filename', fileName);
-      markClean();
-      updateStats();
-      status('Opened ' + fileName);
-    }
-
-    async function doSave() {
-      // If we have a file handle, write directly
-      if (fileHandle && 'createWritable' in fileHandle) {
-        await writeFileHandle(fileHandle, editor.value);
-        markClean();
-        status('Saved ' + fileName);
-        return;
-      }
-      // If File System Access API is available, prompt Save As first time
-      if ('showSaveFilePicker' in window) {
-        await doSaveAs();
-        return;
-      }
-      // Fallback: download
-      doDownload();
-    }
-
-    async function doSaveAs() {
-      if ('showSaveFilePicker' in window) {
-        try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: fileName || 'Untitled.txt',
-            types: [{ description: 'Text Files', accept: { 'text/plain': ['.txt'] } }]
-          });
-          await writeFileHandle(handle, editor.value);
-          fileHandle = handle;
-          fileName = (await handle.getFile()).name || fileName;
-          localStorage.setItem('notepad:filename', fileName);
-          markClean();
-          status('Saved ' + fileName);
-          return;
-        } catch (e) {
-          if (e.name !== 'AbortError') {
-            console.error(e);
-            alert('Save failed: ' + e.message);
-          }
+        function switchTab(index) {
+            activeTabIndex = index;
+            renderTabs();
         }
-      } else {
-        doDownload();
-      }
-    }
 
-    function doDownload() {
-      const blob = new Blob([editor.value], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = fileName || 'Untitled.txt';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(a.href);
-      markClean();
-      status('Downloaded ' + a.download);
-    }
+        function saveContent() {
+            // Update current tab content variable
+            if (tabs[activeTabIndex]) {
+                tabs[activeTabIndex].content = editor.value;
+                
+                // Optional: Update title based on first line? 
+                // For now keeping it simple as "Untitled X"
+                
+                saveData();
+            }
+        }
 
-    async function writeFileHandle(handle, contents) {
-      const writable = await handle.createWritable();
-      await writable.write(contents);
-      await writable.close();
-    }
+        function renderTabs() {
+            // Clear existing tabs (except the add button)
+            const existingTabs = document.querySelectorAll('.tab');
+            existingTabs.forEach(t => t.remove());
 
-    function status(msg) {
-      statusEl.textContent = msg;
-      setTimeout(() => {
-        if (statusEl.textContent === msg) statusEl.textContent = 'Ready';
-      }, 2000);
-    }
+            tabs.forEach((tab, index) => {
+                const tabEl = document.createElement('div');
+                tabEl.className = `tab ${index === activeTabIndex ? 'active' : ''}`;
+                tabEl.onclick = () => switchTab(index);
+                
+                const titleText = document.createElement('span');
+                titleText.innerText = tab.title;
+                tabEl.appendChild(titleText);
 
-    function toggleWrap() {
-      wrapOn = !wrapOn;
-      localStorage.setItem('notepad:wrap', String(wrapOn));
-      applyWrap();
-    }
-    function applyWrap() {
-      editor.classList.toggle('nowrap', !wrapOn);
-      wrapLabelEl.textContent = 'Wrap: ' + (wrapOn ? 'On' : 'Off');
-      wrapStateEl.textContent = wrapOn ? 'On' : 'Off';
-    }
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'tab-close';
+                closeBtn.innerHTML = '&times;';
+                closeBtn.onclick = (e) => closeTab(e, index);
+                tabEl.appendChild(closeBtn);
 
-    function setZoom(value, persist = true) {
-      zoom = Math.max(0.5, Math.min(2, value));
-      editor.style.fontSize = (14 * zoom) + 'px';
-      if (persist) localStorage.setItem('notepad:zoom', String(zoom));
-    }
+                tabBar.insertBefore(tabEl, addTabBtn);
+            });
 
-    function showAbout() {
-      alert('Notepad (browser) — simple, private, and free.\n\nTips:\n- Autosaves to your browser\n- Ctrl/Cmd+S: Save (or Download)\n- Ctrl/Cmd+O: Open\n- Ctrl/Cmd+N: New\n- Ctrl/Cmd+W: Toggle word wrap');
-    }
+            // Update Editor Content
+            if (tabs[activeTabIndex]) {
+                editor.value = tabs[activeTabIndex].content;
+            } else {
+                editor.value = "";
+            }
+        }
 
-    // Keyboard shortcuts
-    function isMod(e) { return e.ctrlKey || e.metaKey; }
-    async function handleShortcuts(e) {
-      // Ignore shortcuts if focused in an input other than editor
-      const tag = e.target.tagName.toLowerCase();
-      if (!['textarea', 'input', 'body'].includes(tag)) return;
+        // --- Persistence (LocalStorage) ---
 
-      if (isMod(e) && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        await doSave();
-      } else if (isMod(e) && e.key.toLowerCase() === 'o') {
-        e.preventDefault();
-        await doOpen();
-      } else if (isMod(e) && e.key.toLowerCase() === 'n') {
-        e.preventDefault();
-        await doNew();
-      } else if (isMod(e) && e.key.toLowerCase() === 'w') {
-        e.preventDefault();
-        toggleWrap();
-      }
-    }
+        function saveData() {
+            localStorage.setItem('notepad_tabs', JSON.stringify(tabs));
+            localStorage.setItem('notepad_config', JSON.stringify(config));
+        }
 
-    // Warn on close if unsaved changes
-    window.addEventListener('beforeunload', (e) => {
-      if (isDirty) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
-  </script>
+        function loadFromStorage() {
+            const storedTabs = localStorage.getItem('notepad_tabs');
+            const storedConfig = localStorage.getItem('notepad_config');
+
+            if (storedTabs) {
+                tabs = JSON.parse(storedTabs);
+            }
+            if (storedConfig) {
+                config = JSON.parse(storedConfig);
+            }
+        }
+
+        function resetAll() {
+            if(confirm("Clear all tabs and reset?")) {
+                localStorage.removeItem('notepad_tabs');
+                localStorage.removeItem('notepad_config');
+                location.reload();
+            }
+        }
+
+        // --- File Menu: Download ---
+
+        function downloadCurrentTab() {
+            if (!tabs[activeTabIndex]) return;
+            
+            const text = tabs[activeTabIndex].content;
+            const filename = prompt("Enter file name:", tabs[activeTabIndex].title);
+            
+            if (filename) {
+                // Update tab title to match filename
+                tabs[activeTabIndex].title = filename;
+                renderTabs();
+                saveData(); // Save the new name
+                
+                // Trigger Download
+                const blob = new Blob([text], { type: 'text/plain' });
+                const anchor = document.createElement('a');
+                anchor.href = URL.createObjectURL(blob);
+                anchor.download = filename.endsWith('.txt') ? filename : filename + '.txt';
+                anchor.click();
+                URL.revokeObjectURL(anchor.href);
+            }
+        }
+
+        // --- Edit Menu: Settings ---
+
+        function openSettings() {
+            document.getElementById('settings-overlay').style.display = 'flex';
+            document.getElementById('font-family-select').value = config.fontFamily;
+            document.getElementById('font-size-input').value = config.fontSize;
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-overlay').style.display = 'none';
+        }
+
+        function applySettings() {
+            const family = document.getElementById('font-family-select').value;
+            const size = document.getElementById('font-size-input').value;
+
+            config.fontFamily = family;
+            config.fontSize = size;
+            
+            applyConfigStyles();
+            saveData();
+            closeSettings();
+        }
+
+        function applyConfigStyles() {
+            editor.style.fontFamily = config.fontFamily;
+            editor.style.fontSize = config.fontSize + "px";
+        }
+
+    </script>
 </body>
 </html>
