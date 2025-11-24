@@ -3,14 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notepad + Tabs</title>
+    <title>Notepad + Tabs (Dark Mode)</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #f0f0f0;
-            --menu-bg: #e0e0e0;
-            --border-color: #999;
+            /* Light Mode Variables (Default) */
+            --bg-body: #f0f0f0;
+            --bg-menubar: #ffffff;
+            --bg-dropdown: #ffffff;
+            --bg-tab-bar: #cccccc;
+            --bg-tab-inactive: #dddddd;
+            --bg-tab-active: #ffffff;
+            --bg-editor: #ffffff;
+            --bg-modal: #ffffff;
+            
+            --text-main: #000000;
+            --text-placeholder: #666666;
+            
+            --border-color: #999999;
+            --border-light: #cccccc;
+            
             --highlight: #0078d7;
-            --text-color: #000;
+            --highlight-text: #ffffff;
+            
+            --btn-hover: #e0e0e0;
+            --tab-close-hover: #cc0000;
+        }
+
+        /* Dark Mode Overrides */
+        body.dark-mode {
+            --bg-body: #121212;
+            --bg-menubar: #2d2d2d;
+            --bg-dropdown: #2d2d2d;
+            --bg-tab-bar: #1e1e1e;
+            --bg-tab-inactive: #333333;
+            --bg-tab-active: #1e1e1e; /* Matches editor bg */
+            --bg-editor: #1e1e1e;
+            --bg-modal: #2d2d2d;
+            
+            --text-main: #e0e0e0;
+            --text-placeholder: #aaaaaa;
+            
+            --border-color: #444444;
+            --border-light: #333333;
+            
+            --highlight: #0078d7;
+            --highlight-text: #ffffff;
+            
+            --btn-hover: #444444;
         }
 
         body {
@@ -21,28 +65,30 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            background-color: var(--bg-color);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background-color 0.2s, color 0.2s;
         }
 
         /* Menu Bar */
         #menubar {
             display: flex;
-            background-color: #fff;
-            border-bottom: 1px solid #ccc;
+            background-color: var(--bg-menubar);
+            border-bottom: 1px solid var(--border-color);
             padding: 2px 0;
             user-select: none;
         }
 
         .menu-item {
             position: relative;
-            padding: 5px 10px;
+            padding: 5px 15px;
             cursor: pointer;
             font-size: 14px;
         }
 
         .menu-item:hover {
             background-color: var(--highlight);
-            color: white;
+            color: var(--highlight-text);
         }
 
         .dropdown {
@@ -50,12 +96,12 @@
             position: absolute;
             top: 100%;
             left: 0;
-            background-color: #fff;
-            border: 1px solid #999;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-            min-width: 150px;
+            background-color: var(--bg-dropdown);
+            border: 1px solid var(--border-color);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            min-width: 160px;
             z-index: 100;
-            color: black;
+            color: var(--text-main);
         }
 
         .menu-item:hover .dropdown {
@@ -63,33 +109,33 @@
         }
 
         .dropdown-item {
-            padding: 5px 15px;
+            padding: 8px 15px;
             cursor: pointer;
             display: block;
             text-decoration: none;
-            color: black;
+            color: var(--text-main);
         }
 
         .dropdown-item:hover {
             background-color: var(--highlight);
-            color: white;
+            color: var(--highlight-text);
         }
 
         /* Tab Bar */
         #tab-bar {
             display: flex;
-            background-color: #ccc;
+            background-color: var(--bg-tab-bar);
             padding-top: 3px;
             padding-left: 3px;
-            border-bottom: 1px solid #999;
+            border-bottom: 1px solid var(--border-color);
             overflow-x: auto;
         }
 
         .tab {
-            background-color: #ddd;
-            border: 1px solid #999;
+            background-color: var(--bg-tab-inactive);
+            border: 1px solid var(--border-color);
             border-bottom: none;
-            padding: 5px 10px;
+            padding: 6px 12px;
             margin-right: 2px;
             cursor: pointer;
             font-size: 13px;
@@ -98,19 +144,21 @@
             max-width: 150px;
             white-space: nowrap;
             user-select: none;
+            color: var(--text-main);
         }
 
         .tab.active {
-            background-color: #fff;
+            background-color: var(--bg-tab-active);
             font-weight: bold;
             position: relative;
             top: 1px; /* Cover bottom border */
+            border-bottom: 1px solid var(--bg-tab-active); /* Blend with editor */
         }
 
         .tab-close {
-            margin-left: 8px;
-            font-size: 12px;
-            color: #666;
+            margin-left: 10px;
+            font-size: 14px;
+            color: var(--text-placeholder);
             border-radius: 50%;
             width: 16px;
             height: 16px;
@@ -120,26 +168,29 @@
         }
 
         .tab-close:hover {
-            background-color: #c00;
+            background-color: var(--tab-close-hover);
             color: white;
         }
 
         #add-tab-btn {
-            padding: 5px 10px;
+            padding: 5px 12px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
-            color: #555;
+            font-size: 18px;
+            color: var(--text-placeholder);
+            display: flex;
+            align-items: center;
         }
         
         #add-tab-btn:hover {
-            color: #000;
+            color: var(--text-main);
         }
 
         /* Editor Area */
         #editor-container {
             flex-grow: 1;
             position: relative;
+            background-color: var(--bg-editor);
         }
 
         textarea {
@@ -147,12 +198,14 @@
             height: 100%;
             border: none;
             resize: none;
-            padding: 10px;
-            font-family: 'Courier New', Courier, monospace; /* Default font */
-            font-size: 14px; /* Default size */
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 14px; 
             box-sizing: border-box;
             outline: none;
             white-space: pre-wrap;
+            background-color: var(--bg-editor);
+            color: var(--text-main);
         }
 
         /* Settings Modal */
@@ -160,28 +213,49 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
             z-index: 200;
             justify-content: center;
             align-items: center;
         }
 
         #settings-box {
-            background: white;
+            background: var(--bg-modal);
+            color: var(--text-main);
             padding: 20px;
-            border: 1px solid #999;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             width: 300px;
+            border-radius: 5px;
         }
 
         #settings-box h3 { margin-top: 0; }
         
-        .setting-row { margin-bottom: 10px; }
-        .setting-row label { display: block; margin-bottom: 5px; font-size: 14px; }
-        .setting-row select, .setting-row input { width: 100%; padding: 5px; }
+        .setting-row { margin-bottom: 15px; }
+        .setting-row label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; }
         
-        .btn-group { text-align: right; margin-top: 15px; }
-        button { padding: 5px 15px; cursor: pointer; }
+        .setting-row select, .setting-row input { 
+            width: 100%; 
+            padding: 8px; 
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-group { text-align: right; margin-top: 20px; }
+        
+        button { 
+            padding: 8px 20px; 
+            cursor: pointer; 
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            margin-left: 5px;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+        }
 
     </style>
 </head>
@@ -199,9 +273,14 @@
                 <div class="dropdown-item" onclick="openSettings()">Font & Size...</div>
             </div>
         </div>
+        <div class="menu-item">View
+            <div class="dropdown">
+                <div class="dropdown-item" onclick="toggleDarkMode()">Toggle Dark Mode</div>
+            </div>
+        </div>
         <div class="menu-item">Help
             <div class="dropdown">
-                <div class="dropdown-item" onclick="alert('Notepad with Tabs and Auto-save.')">About</div>
+                <div class="dropdown-item" onclick="alert('Notepad with Tabs, Auto-save, and Dark Mode.')">About</div>
             </div>
         </div>
     </div>
@@ -221,6 +300,8 @@
                 <label>Font Family</label>
                 <select id="font-family-select">
                     <option value="'Courier New', monospace">Courier New</option>
+                    <option value="'Open Sans', sans-serif">Open Sans</option>
+                    <option value="'Comic Sans MS', 'Comic Sans', cursive">Comic Sans</option>
                     <option value="Arial, sans-serif">Arial</option>
                     <option value="'Times New Roman', serif">Times New Roman</option>
                     <option value="'Consolas', monospace">Consolas</option>
@@ -245,7 +326,8 @@
         // Default Config
         let config = {
             fontFamily: "'Courier New', monospace",
-            fontSize: "14"
+            fontSize: "14",
+            darkMode: false
         };
 
         const editor = document.getElementById('editor');
@@ -256,17 +338,21 @@
 
         window.onload = function() {
             loadFromStorage();
+            
+            // Apply Theme immediately
+            applyTheme();
+
             if (tabs.length === 0) {
-                addNewTab(false); // Add default tab if none exist
+                addNewTab(false); 
             }
             renderTabs();
-            applyConfigStyles();
+            applyFontStyles();
         };
 
         // --- Core Functions ---
 
         function addNewTab(shouldSave = true) {
-            const newId = Date.now(); // Simple unique ID
+            const newId = Date.now();
             tabs.push({
                 id: newId,
                 title: `Untitled ${tabs.length + 1}`,
@@ -279,15 +365,14 @@
         }
 
         function closeTab(e, index) {
-            e.stopPropagation(); // Prevent clicking the tab itself
+            e.stopPropagation();
             const confirmClose = confirm("Delete this tab? This cannot be undone.");
             if (!confirmClose) return;
 
             tabs.splice(index, 1);
             
-            // Adjust active index
             if (tabs.length === 0) {
-                addNewTab(); // Always keep one tab
+                addNewTab(); 
             } else {
                 if (activeTabIndex >= tabs.length) {
                     activeTabIndex = tabs.length - 1;
@@ -303,19 +388,13 @@
         }
 
         function saveContent() {
-            // Update current tab content variable
             if (tabs[activeTabIndex]) {
                 tabs[activeTabIndex].content = editor.value;
-                
-                // Optional: Update title based on first line? 
-                // For now keeping it simple as "Untitled X"
-                
                 saveData();
             }
         }
 
         function renderTabs() {
-            // Clear existing tabs (except the add button)
             const existingTabs = document.querySelectorAll('.tab');
             existingTabs.forEach(t => t.remove());
 
@@ -337,7 +416,6 @@
                 tabBar.insertBefore(tabEl, addTabBtn);
             });
 
-            // Update Editor Content
             if (tabs[activeTabIndex]) {
                 editor.value = tabs[activeTabIndex].content;
             } else {
@@ -345,7 +423,7 @@
             }
         }
 
-        // --- Persistence (LocalStorage) ---
+        // --- Persistence ---
 
         function saveData() {
             localStorage.setItem('notepad_tabs', JSON.stringify(tabs));
@@ -356,23 +434,39 @@
             const storedTabs = localStorage.getItem('notepad_tabs');
             const storedConfig = localStorage.getItem('notepad_config');
 
-            if (storedTabs) {
-                tabs = JSON.parse(storedTabs);
-            }
+            if (storedTabs) tabs = JSON.parse(storedTabs);
             if (storedConfig) {
-                config = JSON.parse(storedConfig);
+                const loadedConfig = JSON.parse(storedConfig);
+                // Merge loaded config with defaults (in case we added new keys like darkMode)
+                config = { ...config, ...loadedConfig };
             }
         }
 
         function resetAll() {
-            if(confirm("Clear all tabs and reset?")) {
+            if(confirm("Clear all tabs, settings, and reset?")) {
                 localStorage.removeItem('notepad_tabs');
                 localStorage.removeItem('notepad_config');
                 location.reload();
             }
         }
 
-        // --- File Menu: Download ---
+        // --- Dark Mode ---
+
+        function toggleDarkMode() {
+            config.darkMode = !config.darkMode;
+            applyTheme();
+            saveData();
+        }
+
+        function applyTheme() {
+            if (config.darkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        // --- File Menu ---
 
         function downloadCurrentTab() {
             if (!tabs[activeTabIndex]) return;
@@ -381,12 +475,10 @@
             const filename = prompt("Enter file name:", tabs[activeTabIndex].title);
             
             if (filename) {
-                // Update tab title to match filename
                 tabs[activeTabIndex].title = filename;
                 renderTabs();
-                saveData(); // Save the new name
+                saveData();
                 
-                // Trigger Download
                 const blob = new Blob([text], { type: 'text/plain' });
                 const anchor = document.createElement('a');
                 anchor.href = URL.createObjectURL(blob);
@@ -396,7 +488,7 @@
             }
         }
 
-        // --- Edit Menu: Settings ---
+        // --- Settings Menu ---
 
         function openSettings() {
             document.getElementById('settings-overlay').style.display = 'flex';
@@ -415,12 +507,12 @@
             config.fontFamily = family;
             config.fontSize = size;
             
-            applyConfigStyles();
+            applyFontStyles();
             saveData();
             closeSettings();
         }
 
-        function applyConfigStyles() {
+        function applyFontStyles() {
             editor.style.fontFamily = config.fontFamily;
             editor.style.fontSize = config.fontSize + "px";
         }
